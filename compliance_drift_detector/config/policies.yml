@@ -1,0 +1,212 @@
+version: "1.0"
+policies:
+  - id: cis_ssh_root_login
+    os: linux
+    description: "SSH root login must be disabled"
+    command: "sudo grep -E '^[[:space:]]*PermitRootLogin' /etc/ssh/sshd_config | grep -v '^[[:space:]]*#' | head -1 || echo not_set"
+    match: "contains"
+    expected: "no"
+    severity: "critical"
+    remediation: "Set 'PermitRootLogin no' in /etc/ssh/sshd_config and reload sshd"
+
+  - id: cis_firewalld_active
+    os: linux
+    description: "firewalld firewall is enabled and running"
+    command: "systemctl is-active firewalld || echo inactive"
+    match: "exact"
+    expected: "active"
+    severity: "critical"
+    remediation: "Enable firewalld: 'sudo systemctl enable --now firewalld'"
+
+  - id: cis_auditd_active
+    os: linux
+    description: "auditd service enabled and active"
+    command: "systemctl is-active auditd || echo inactive"
+    match: "exact"
+    expected: "active"
+    severity: "critical"
+    remediation: "Enable auditd: 'sudo systemctl enable --now auditd'"
+
+  - id: cis_rsyslog_active
+    os: linux
+    description: "rsyslog logging service is active"
+    command: "systemctl is-active rsyslog || echo inactive"
+    match: "exact"
+    expected: "active"
+    severity: "high"
+    remediation: "Enable rsyslog: 'sudo systemctl enable --now rsyslog'"
+
+  - id: cis_timesyncd_active
+    os: linux
+    description: "Time synchronization service active"
+    command: "systemctl is-active chronyd || systemctl is-active systemd-timesyncd || echo inactive"
+    match: "contains"
+    expected: "active"
+    severity: "medium"
+    remediation: "Enable chronyd or systemd-timesyncd for NTP support"
+
+  - id: cis_pass_max_days
+    os: linux
+    description: "Maximum password age set to 90 days or less"
+    command: "awk '/^PASS_MAX_DAYS/ {print $2}' /etc/login.defs || echo 0"
+    match: "regex"
+    expected: "^(?:[0-8]?[0-9]|90)$"
+    expected_display: "Maximum password age ≤ 90 days"
+    severity: "medium"
+    remediation: "Set 'PASS_MAX_DAYS 90' or less in /etc/login.defs"
+
+  - id: cis_pass_min_days
+    os: linux
+    description: "Minimum password age to prevent rapid changes"
+    command: "awk '/^PASS_MIN_DAYS/ {print $2}' /etc/login.defs || echo 0"
+    match: "exact"
+    expected: "1"
+    severity: "medium"
+    remediation: "Set 'PASS_MIN_DAYS 1' in /etc/login.defs"
+
+  - id: cis_pass_warn_age
+    os: linux
+    description: "Password expiration warning configured"
+    command: "awk '/^PASS_WARN_AGE/ {print $2}' /etc/login.defs || echo 0"
+    match: "regex"
+    expected: "^(?:7|[1-9])$"
+    severity: "low"
+    remediation: "Set 'PASS_WARN_AGE 7' or appropriate in /etc/login.defs"
+
+  - id: cis_pwquality_minlen
+    os: linux
+    description: "Password minimum length set to 14 or more"
+    command: "grep -E '^\\s*minlen\\s*=\\s*' /etc/security/pwquality.conf || echo minlen=0"
+    match: "regex"
+    expected: "^\\s*minlen\\s*=\\s*(1[4-9]|[2-9][0-9]|100)$"
+    expected_display: "Minimum password length ≥ 14"
+    severity: "high"
+    remediation: "Set 'minlen = 14' or greater in /etc/security/pwquality.conf"
+
+  - id: cis_pwquality_dcredit
+    os: linux
+    description: "Password digit credit set to negative value"
+    command: "grep -E '^\\s*dcredit\\s*=\\s*' /etc/security/pwquality.conf || echo dcredit=0"
+    match: "regex"
+    expected: "^\\s*dcredit\\s*=\\s*-"
+    expected_display: "Digit credit set to a negative value"
+    severity: "medium"
+    remediation: "Set 'dcredit = -1' or more strict in /etc/security/pwquality.conf"
+
+  - id: cis_selinux_enforcing
+    os: linux
+    description: "SELinux is enabled and enforcing"
+    command: "getenforce || echo Disabled"
+    match: "exact"
+    expected: "Enforcing"
+    severity: "critical"
+    remediation: "Ensure SELinux is set to enforcing mode"
+
+  - id: cis_core_dumps_restricted
+    os: linux
+    description: "Core dumps for setuid apps are restricted"
+    command: "sysctl fs.suid_dumpable || echo not_set"
+    match: "exact"
+    expected: "0"
+    severity: "medium"
+    remediation: "Set 'fs.suid_dumpable=0' in /etc/sysctl.conf and reload sysctl"
+
+  - id: cis_aslr_enabled
+    os: linux
+    description: "Kernel ASLR fully enabled"
+    command: "sysctl kernel.randomize_va_space || echo not_set"
+    match: "exact"
+    expected: "2"
+    severity: "high"
+    remediation: "Set 'kernel.randomize_va_space=2' in /etc/sysctl.conf and reload"
+
+  - id: cis_ssh_max_auth_tries
+    os: linux
+    description: "SSH MaxAuthTries limited to 4"
+    command: "sudo grep -E '^[[:space:]]*MaxAuthTries' /etc/ssh/sshd_config | grep -v '^[[:space:]]*#' | head -1 || echo not_set"
+    match: "exact"
+    expected: "MaxAuthTries 4"
+    severity: "medium"
+    remediation: "Set 'MaxAuthTries 4' in /etc/ssh/sshd_config and reload sshd"
+
+  - id: cis_ssh_x11_forwarding
+    os: linux
+    description: "SSH X11 forwarding disabled"
+    command: "sudo grep -E '^[[:space:]]*X11Forwarding' /etc/ssh/sshd_config | grep -v '^[[:space:]]*#' | head -1 || echo not_set"
+    match: "contains"
+    expected: "no"
+    severity: "medium"
+    remediation: "Set 'X11Forwarding no' in /etc/ssh/sshd_config and reload sshd"
+
+  - id: cis_ssh_allow_tcp_forwarding
+    os: linux
+    description: "SSH AllowTcpForwarding disabled"
+    command: "sudo grep -E '^[[:space:]]*AllowTcpForwarding' /etc/ssh/sshd_config | grep -v '^[[:space:]]*#' | head -1 || echo not_set"
+    match: "contains"
+    expected: "no"
+    severity: "medium"
+    remediation: "Set 'AllowTcpForwarding no' in /etc/ssh/sshd_config and reload sshd"
+
+  - id: cis_etc_passwd_permissions
+    os: linux
+    description: "/etc/passwd permissions set to 644 or stricter"
+    command: "stat -c '%a' /etc/passwd || echo not_set"
+    match: "regex"
+    expected: "^[0-6][0-4][0-4]$|^6{3}$"
+    severity: "high"
+    remediation: "Set `/etc/passwd` permissions to 644 via 'chmod 644 /etc/passwd'"
+
+  - id: cis_etc_shadow_permissions
+    os: linux
+    description: "/etc/shadow permissions set to 640 or stricter"
+    command: "stat -c '%a' /etc/shadow || echo not_accessible"
+    match: "regex"
+    expected: "^640$|^600$"
+    expected_display: "Permissions 640 or 600"
+    severity: "critical"
+    remediation: "Set '/etc/shadow' permissions to 640 via 'chmod 640 /etc/shadow'"
+
+  - id: cis_password_reuse_limit
+    os: linux
+    description: "Password reuse limit set via pam_pwhistory"
+    command: "grep 'remember=' /etc/pam.d/system-auth || echo not_set"
+    match: "regex"
+    expected: "remember=[2-9]"
+    severity: "medium"
+    remediation: "Set 'remember=5' or greater in PAM configuration"
+
+  - id: cis_disable_ctrl_alt_del
+    os: linux
+    description: "Ctrl-Alt-Del reboot disabled"
+    command: "systemctl is-enabled ctrl-alt-del.target || echo not_set"
+    match: "exact"
+    expected: "masked"
+    severity: "low"
+    remediation: "Disable Ctrl-Alt-Del reboot with 'systemctl mask ctrl-alt-del.target'"
+
+  - id: cis_sysctl_ip_forward
+    os: linux
+    description: "IP forwarding disabled"
+    command: "sysctl net.ipv4.ip_forward || echo not_set"
+    match: "exact"
+    expected: "0"
+    severity: "high"
+    remediation: "Set 'net.ipv4.ip_forward=0' in /etc/sysctl.conf and reload"
+
+  - id: cis_ntp_installed
+    os: linux
+    description: "Chrony or NTP installed"
+    command: "rpm -q chrony || rpm -q ntp || echo not_installed"
+    match: "regex"
+    expected: "(chrony|ntp)"
+    severity: "medium"
+    remediation: "Install and enable chrony or ntp"
+
+  - id: cis_fail2ban_active
+    os: linux
+    description: "Fail2ban installed and running"
+    command: "systemctl is-active fail2ban || echo ''"
+    match: "exact"
+    expected: "active"
+    severity: "medium"
+    remediation: "Install and start fail2ban service"

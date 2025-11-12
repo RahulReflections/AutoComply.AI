@@ -1,0 +1,90 @@
+[
+  {
+    "id": "cis_pass_max_days",
+    "description": "Maximum password age set to 90 days or less",
+    "actual": "99999",
+    "expected": "Maximum password age \u2264 90 days",
+    "severity": "medium",
+    "remediation": "Set 'PASS_MAX_DAYS 90' or less in /etc/login.defs"
+  },
+  {
+    "id": "cis_pass_min_days",
+    "description": "Minimum password age to prevent rapid changes",
+    "actual": "0",
+    "expected": "1",
+    "severity": "medium",
+    "remediation": "Set 'PASS_MIN_DAYS 1' in /etc/login.defs"
+  },
+  {
+    "id": "cis_pwquality_minlen",
+    "description": "Password minimum length set to 14 or more",
+    "actual": "minlen=0",
+    "expected": "Minimum password length \u2265 14",
+    "severity": "high",
+    "remediation": "Set 'minlen = 14' or greater in /etc/security/pwquality.conf"
+  },
+  {
+    "id": "cis_pwquality_dcredit",
+    "description": "Password digit credit set to negative value",
+    "actual": "dcredit=0",
+    "expected": "Digit credit set to a negative value",
+    "severity": "medium",
+    "remediation": "Set 'dcredit = -1' or more strict in /etc/security/pwquality.conf"
+  },
+  {
+    "id": "cis_selinux_enforcing",
+    "description": "SELinux is enabled and enforcing",
+    "actual": "Permissive",
+    "expected": "Enforcing",
+    "severity": "critical",
+    "remediation": "Ensure SELinux is set to enforcing mode"
+  },
+  {
+    "id": "cis_ssh_max_auth_tries",
+    "description": "SSH MaxAuthTries limited to 4",
+    "actual": "MaxAuthTries 4",
+    "expected": "MaxAuthTries 4",
+    "severity": "medium",
+    "remediation": "Set 'MaxAuthTries 4' in /etc/ssh/sshd_config and reload sshd"
+  },
+  {
+    "id": "cis_etc_shadow_permissions",
+    "description": "/etc/shadow permissions set to 640 or stricter",
+    "actual": "0",
+    "expected": "Permissions 640 or 600",
+    "severity": "critical",
+    "remediation": "Set '/etc/shadow' permissions to 640 via 'chmod 640 /etc/shadow'"
+  },
+  {
+    "id": "cis_password_reuse_limit",
+    "description": "Password reuse limit set via pam_pwhistory",
+    "actual": "not_set",
+    "expected": "remember=[2-9]",
+    "severity": "medium",
+    "remediation": "Set 'remember=5' or greater in PAM configuration"
+  },
+  {
+    "id": "cis_disable_ctrl_alt_del",
+    "description": "Ctrl-Alt-Del reboot disabled",
+    "actual": "enabled",
+    "expected": "masked",
+    "severity": "low",
+    "remediation": "Disable Ctrl-Alt-Del reboot with 'systemctl mask ctrl-alt-del.target'"
+  },
+  {
+    "id": "cis_ntp_installed",
+    "description": "Chrony or NTP installed",
+    "actual": "chrony-4.5-2.el8_10.x86_64",
+    "expected": "(chrony|ntp)",
+    "severity": "medium",
+    "remediation": "Install and enable chrony or ntp"
+  },
+  {
+    "id": "cis_fail2ban_active",
+    "description": "Fail2ban installed and running",
+    "actual": "inactive",
+    "expected": "active",
+    "severity": "medium",
+    "remediation": "Install and start fail2ban service"
+  }
+]
